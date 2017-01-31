@@ -1,0 +1,17 @@
+{
+    "version": "2.1.0",
+    "summary": "access web-midi through Elm ports",
+    "repository": "https://github.com/newlandsvalley/elm-webmidi-ports.git",
+    "license": "BSD3",
+    "source-directories": [
+        "src",
+        "../src"
+    ],
+    "exposed-modules": [ ],
+    "dependencies": {
+      "elm-lang/core": "5.1.1 <= v < 6.0.0",
+      "elm-lang/html": "2.0.0 <= v < 3.0.0",
+      "newlandsvalley/elm-comidi": "2.2.0 <= v < 3.0.0"
+    },
+    "elm-version": "0.18.0 <= v < 0.19.0"
+}
