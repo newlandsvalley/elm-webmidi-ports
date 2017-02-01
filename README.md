@@ -5,10 +5,20 @@ This is an Elm 0.18 pseudo-library for [Web-MIDI](http://www.w3.org/TR/webmidi/)
 
 This version has one advantage over its predecessor - MIDI Event messages are now properly parsed using the [elm-comidi](https://github.com/newlandsvalley/elm-comidi) parser which means that the full range of such messages is now supported.
 
+You will need to attach a MIDI input device to your computer to see any effect from Web-MIDI. At the time of writing, only Chrome has full support - other browsers will fail to initialise or fail to respond (say) to key presses on a MIDI keyboard.
+
+To build, invoke __compile.sh__ and browse to __webmidi.html__
+
 Examples
 --------
 
-The examples directory holds sample programs.  At the moment there is just one - __basic.html__.  To build, cd to the examples directory and invoke __compile.sh__.  You will need to attach a MIDI input device to your computer to see any effect. At the time of writing, only Chrome has full support for web-midi - other browsers will fail to initialise or fail to respond (say) to key presses on a MIDI keyboard.
+cd to the examples directory to see the sample programs.  
+
+### Basic
+
+Basic.html is functionally identical to webmidi.html.  It simply illustrates how you might embed the WebMidi module inside a larger program (but in this case this program does nothing else).
+
+To build, invoke __compileb.sh__ and browse to __basic.html__.
 
 Dependencies
 ------------

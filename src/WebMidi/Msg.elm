@@ -1,6 +1,5 @@
 module WebMidi.Msg exposing (..)
 
-import Maybe exposing (Maybe)
 import WebMidi.Types exposing (..)
 
 
@@ -11,4 +10,3 @@ type Msg
     | ResponseInputDevice MidiConnection
     | DeviceDisconnected MidiDisconnection
     | Event MidiEncodedEvent
-    | NoOp

@@ -5,17 +5,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Elm 0.18 web-midi ports module use </title>
+    <title>Elm 0.18 web-midi ports sample</title>
 
 
   </head>
   <body>
-    <div id="elmBasic"></div>
-    <script src="distjs/elmBasic.js"></script>
+    <div id="elmWebMidi"></div>
+    <script src="distjs/elmWebMidi.js"></script>
     <script>
-    var node = document.getElementById('elmBasic');
-    var myapp = Elm.Basic.embed(node);
+    var node = document.getElementById('elmWebMidi');
+    var myapp = Elm.WebMidi.embed(node);
     </script>
-    <script src="../js/nativeWebMidi.js"></script>
+    <script src="js/nativeWebMidi.js"></script>
   </body>
 </html>

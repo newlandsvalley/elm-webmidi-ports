@@ -3,3 +3,6 @@ elm.js
 Main.html
 deprecated
 examples/elm-stuff
+examples/src/SoundFont
+distjs/*.js
+examples/distjs/*.js

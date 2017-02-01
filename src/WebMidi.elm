@@ -1,14 +1,10 @@
-module WebMidi exposing (..)
+module WebMidi exposing (Model, init, update, view, subscriptions)
 
-import Html exposing (Html, Attribute, p, text, div, input, button)
+import Html exposing (Html, Attribute, p, text, div, button)
 import Html.Attributes exposing (..)
-import Html.Events exposing (on, onClick)
+import Html.Events exposing (onClick)
 import String
 import Char exposing (toCode)
-
-
--- import Task
-
 import WebMidi.Ports exposing (..)
 import WebMidi.Types exposing (..)
 import WebMidi.Msg exposing (..)
@@ -20,7 +16,11 @@ import Debug exposing (log)
 
 main =
     Html.program
-        { init = ( init, Cmd.none ), update = update, view = view, subscriptions = subscriptions }
+        { init = init, update = update, view = view, subscriptions = subscriptions }
+
+
+
+-- type Msg = WebMidi.Msg.Msg
 
 
 type alias Model =
@@ -31,7 +31,9 @@ type alias Model =
 
 
 init =
-    Model False [] (Err "notes not started")
+    ( Model False [] (Err "notes not started")
+    , Cmd.none
+    )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -66,14 +68,15 @@ update msg model =
             , Cmd.none
             )
 
-        NoOp ->
-            ( model, Cmd.none )
-
 
 addDevice : MidiConnection -> Model -> Model
 addDevice device model =
     let
         isNew =
+            {- }
+               type WebMidiMsg
+                   = Msg
+            -}
             List.filter (\d -> d.id == device.id) model.inputDevices
                 |> List.isEmpty
     in
