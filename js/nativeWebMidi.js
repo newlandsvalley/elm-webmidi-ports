@@ -1,6 +1,6 @@
 "use strict";
 
-myapp.ports.initialise.subscribe(webMidiConnect);
+myapp.ports.initialiseWebMidi.subscribe(webMidiConnect);
 
 
 function webMidiConnect () {
@@ -91,7 +91,7 @@ function onMIDIMessage(event){
     // console.log("MIDI Message");
     var encodedEvent = { timeStamp : event.timeStamp
                        , encodedBinary : encodeAsString(event.data)};
-    myapp.ports.event.send(encodedEvent);
+    myapp.ports.encodedEvent.send(encodedEvent);
 }
 
 

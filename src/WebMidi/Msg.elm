@@ -1,6 +1,7 @@
 module WebMidi.Msg exposing (..)
 
 import WebMidi.Types exposing (..)
+import MidiTypes exposing (MidiEvent)
 
 
 type Msg
@@ -9,4 +10,5 @@ type Msg
     | RequestInputDevices
     | ResponseInputDevice MidiConnection
     | DeviceDisconnected MidiDisconnection
-    | Event MidiEncodedEvent
+    | EncodedEvent MidiEncodedEvent
+    | Event (Result String MidiEvent)

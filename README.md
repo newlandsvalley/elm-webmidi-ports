@@ -16,9 +16,16 @@ cd to the examples directory to see the sample programs.
 
 ### Basic
 
-Basic.html is functionally identical to webmidi.html.  It simply illustrates how you might embed the WebMidi module inside a larger program (but in this case this program does nothing else).
+basic.html is functionally identical to webmidi.html.  It simply illustrates how you might embed the WebMidi module inside a larger program (but in this case this program does nothing else).
 
 To build, invoke __compileb.sh__ and browse to __basic.html__.
+
+### Piano
+
+piano.html allows you to plug in your MIDI keyboard or other MIDI device and play it as a piano. It works simply by loading the piano soundfont, initialising web-midi and requesting that any NoteOn events should be played through the soundfont.
+
+To build, invoke __compilep.sh__ and browse to __piano.html__.
+
 
 Dependencies
 ------------

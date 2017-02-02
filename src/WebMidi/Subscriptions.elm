@@ -25,4 +25,4 @@ inputDeviceSub =
 
 eventSub : Sub Msg
 eventSub =
-    event Event
+    encodedEvent EncodedEvent

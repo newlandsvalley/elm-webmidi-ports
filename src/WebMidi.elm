@@ -3,8 +3,9 @@ module WebMidi exposing (Model, init, update, view, subscriptions)
 import Html exposing (Html, Attribute, p, text, div, button)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
-import String
 import Char exposing (toCode)
+import Basics exposing (never)
+import Task exposing (Task, perform, succeed)
 import WebMidi.Ports exposing (..)
 import WebMidi.Types exposing (..)
 import WebMidi.Msg exposing (..)
@@ -40,7 +41,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         WebMidiInitialise ->
-            ( model, initialise () )
+            ( model, initialiseWebMidi () )
 
         ResponseWebMidiInitialised isInitialised ->
             ( { model | initialised = isInitialised }
@@ -63,8 +64,20 @@ update msg model =
             , Cmd.none
             )
 
-        Event encodedEvent ->
-            ( { model | midiEvent = parseMidiEvent encodedEvent.encodedBinary }
+        -- we don't export encodedEvent (which is there to satisfy the port)
+        EncodedEvent encodedEvent ->
+            {- we don't do the simple thing:
+                 update (Event (parseMidiEvent encodedEvent.encodedBinary)) model
+               because we want to expose the Event message to clients which will happen
+               if we forward the message through the Effects system
+            -}
+            ( model
+            , forwardEvent (parseMidiEvent encodedEvent.encodedBinary)
+            )
+
+        -- we do export a dcoded event
+        Event event ->
+            ( { model | midiEvent = event }
             , Cmd.none
             )
 
@@ -73,10 +86,6 @@ addDevice : MidiConnection -> Model -> Model
 addDevice device model =
     let
         isNew =
-            {- }
-               type WebMidiMsg
-                   = Msg
-            -}
             List.filter (\d -> d.id == device.id) model.inputDevices
                 |> List.isEmpty
     in
@@ -93,6 +102,11 @@ removeDevice disconnection model =
             List.filter (\d -> d.id /= disconnection.id) model.inputDevices
     in
         { model | inputDevices = devices, midiEvent = Err "notes not started" }
+
+
+forwardEvent : Result String MidiEvent -> Cmd Msg
+forwardEvent event =
+    Task.perform Event (succeed event)
 
 
 
