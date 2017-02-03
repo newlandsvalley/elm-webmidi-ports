@@ -73,7 +73,7 @@ update msg model =
             case midiMsg of
                 Event midiEvent ->
                     ( model
-                    , playNote midiEvent
+                    , playNote midiEvent model
                     )
 
                 -- route any other messages to the WebMid module
@@ -89,22 +89,30 @@ update msg model =
 {- just respond to NoteOn events by playing them -}
 
 
-playNote : Result String MidiEvent -> Cmd Msg
-playNote event =
+playNote : Result String MidiEvent -> Model -> Cmd Msg
+playNote event model =
     case event of
         Ok midiEvent ->
             case midiEvent of
                 NoteOn channel pitch velocity ->
                     let
-                        maxVelocity =
-                            0x7F
+                        -- this is the utter maximum velocity
+                        volumeCeiling =
+                            127.0
 
+                        -- this is the fraction that it is scaled back by the volume control
+                        volumeScale =
+                            Basics.toFloat model.webMidi.maxVolume / volumeCeiling
+
+                        -- and this is what's left of the note
                         gain =
-                            Basics.toFloat velocity / maxVelocity
+                            Basics.toFloat velocity * volumeScale / volumeCeiling
 
                         note =
                             -- MidiNote
                             { id = pitch, timeOffset = 0.0, gain = gain }
+
+                        -- _ =  log "gain" gain
                     in
                         requestPlayNote note
 

@@ -11,13 +11,20 @@ import WebMidi.Types exposing (..)
 import WebMidi.Msg exposing (..)
 import WebMidi.Subscriptions exposing (..)
 import CoMidi exposing (parseMidiEvent)
-import MidiTypes exposing (MidiEvent)
+import MidiTypes exposing (MidiEvent(..))
 import Debug exposing (log)
 
 
 main =
     Html.program
         { init = init, update = update, view = view, subscriptions = subscriptions }
+
+
+{-| volumes in MIDI range from 0 to 127
+-}
+volumeCeiling : Int
+volumeCeiling =
+    127
 
 
 
@@ -28,11 +35,12 @@ type alias Model =
     { initialised : Bool
     , inputDevices : List MidiConnection
     , midiEvent : Result String MidiEvent
+    , maxVolume : Int
     }
 
 
 init =
-    ( Model False [] (Err "notes not started")
+    ( Model False [] (Err "notes not started") (volumeCeiling // 2)
     , Cmd.none
     )
 
@@ -71,9 +79,18 @@ update msg model =
                because we want to expose the Event message to clients which will happen
                if we forward the message through the Effects system
             -}
-            ( model
-            , forwardEvent (parseMidiEvent encodedEvent.encodedBinary)
-            )
+            let
+                -- parse the MIDI event
+                midiEvent =
+                    parseMidiEvent encodedEvent.encodedBinary
+
+                -- intercept any control messages we care about
+                newModel =
+                    recogniseControlMessage midiEvent model
+            in
+                ( newModel
+                , forwardEvent (midiEvent)
+                )
 
         -- we do export a dcoded event
         Event event ->
@@ -107,6 +124,25 @@ removeDevice disconnection model =
 forwardEvent : Result String MidiEvent -> Cmd Msg
 forwardEvent event =
     Task.perform Event (succeed event)
+
+
+{-| recognise and act on a control message and save to the model state
+    At the moment, we just recognise volume changes
+-}
+recogniseControlMessage : Result String MidiEvent -> Model -> Model
+recogniseControlMessage event model =
+    case event of
+        Ok midiEvent ->
+            case midiEvent of
+                -- 7 is the volume control
+                ControlChange channel 7 amount ->
+                    { model | maxVolume = amount }
+
+                _ ->
+                    model
+
+        Err _ ->
+            model
 
 
 
@@ -159,6 +195,7 @@ view model =
         , p [] [ text ("initialised: " ++ (toString model.initialised)) ]
         , div [] (viewInputDevices model)
         , div [] [ text (viewMidiEvent model) ]
+        , div [] [ text ("max volume : " ++ (toString model.maxVolume)) ]
         ]
 
 
