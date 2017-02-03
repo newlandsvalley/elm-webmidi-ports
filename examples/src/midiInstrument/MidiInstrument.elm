@@ -45,9 +45,16 @@ type alias Model =
 instruments : List ( String, String )
 instruments =
     [ ( "grand piano", "acoustic_grand_piano" )
+    , ( "acoustic guitar", "acoustic_guitar_nylon" )
+    , ( "bassoon", "bassoon" )
+    , ( "cello", "cello" )
     , ( "harp", "orchestral_harp" )
     , ( "harpsichord", "harpsichord" )
+    , ( "marimba", "marimba" )
     , ( "oboe", "oboe" )
+    , ( "sitar", "sitar" )
+    , ( "vibraphone", "vibraphone" )
+    , ( "xylophone", "xylophone" )
     ]
 
 
@@ -220,24 +227,11 @@ instrumentOptions name =
         List.map f instruments
 
 
-
-{-
-   instrumentOptions name =
-       [ option [ selectedInstrument name "acoustic_grand_piano" ]
-           [ text "acoustic_grand_piano" ]
-       , option [ selectedInstrument name "harpsichord" ]
-           [ text "harpsichord" ]
-       , option [ selectedInstrument name "orchestral_harp" ]
-           [ text "orchestral_harp" ]
-       ]
--}
-
-
 view : Model -> Html Msg
 view model =
     div []
-        [ p [] [ text ("instrument: " ++ model.instrument) ]
-        , p [] [ text (initialisationStatus model) ]
+        [ -- p [] [ text ("instrument: " ++ model.instrument) ]
+          p [] [ text (initialisationStatus model) ]
         , span [] [ text "select an instrument" ]
         , instrumentMenu model
         ]

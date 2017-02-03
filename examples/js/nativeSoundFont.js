@@ -15,7 +15,9 @@ function detectOggEnabled() {
 myapp.ports.requestLoadPianoFonts.subscribe(loadPianoSoundFonts);
 
 function loadPianoSoundFonts(dirname) {
-    myapp.context = getAudioContext();
+    if (!myapp.context) {
+      myapp.context = getAudioContext();
+    }
     var name = 'acoustic_grand_piano'
     var dir = dirname + '/'
     if (canPlayOgg()) {
@@ -37,7 +39,9 @@ function loadPianoSoundFonts(dirname) {
 myapp.ports.requestLoadRemoteFonts.subscribe(loadRemoteSoundFonts);
 
 function loadRemoteSoundFonts(instrumentname) {
-    myapp.context = getAudioContext();
+    if (!myapp.context) {
+      myapp.context = getAudioContext();
+    }
     Soundfont.loadBuffers(myapp.context, instrumentname)
         .then(function (buffers) {
           console.log("buffers:", buffers)
