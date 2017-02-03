@@ -9,6 +9,11 @@ You will need to attach a MIDI input device to your computer to see any effect f
 
 To build, invoke __compile.sh__ and browse to __webmidi.html__
 
+Testing
+-------
+
+This project has been tested using an M-Audio KeystationMini32 keyboard.
+
 Examples
 --------
 
@@ -22,9 +27,15 @@ To build, invoke __compileb.sh__ and browse to __basic.html__.
 
 ### Piano
 
-piano.html allows you to plug in your MIDI keyboard or other MIDI device and play it as a piano. It works simply by loading the piano soundfont, initialising web-midi and requesting that any NoteOn events should be played through the soundfont.
+piano.html allows you to plug in your MIDI keyboard or other MIDI device and play it as a piano. It works simply by loading the piano soundfont which is served as a local resource, initialising web-midi and requesting that any NoteOn events should be played through the soundfont.
 
 To build, invoke __compilep.sh__ and browse to __piano.html__.
+
+### Pick an Instrument
+
+midiInstrument.html allows you to plug in your MIDI keyboard or other MIDI device and to choose the instrumental sound it makes. In this case, the soundfonts are loaded directly from Benjamin Gleitzman's github package of [pre-rendered sound fonts](https://github.com/gleitz/midi-js-soundfonts). These may take a little longer to load.
+
+To build, invoke __compilemi.sh__ and browse to __midiInstrument.html__.
 
 
 Dependencies

@@ -1,6 +1,11 @@
-module Piano exposing (..)
+module MidiInstrument exposing (..)
 
-import Html exposing (Html, Attribute, map, div, p, text)
+import Html exposing (Html, Attribute, map, div, p, span, text, select, option)
+import Html.Events exposing (on, targetValue)
+import Html.Attributes exposing (style, selected)
+import Json.Decode as Json
+import Dict exposing (Dict, fromList, get)
+import Maybe exposing (withDefault)
 import WebMidi exposing (Model, init, update, subscriptions)
 import WebMidi.Msg exposing (..)
 import WebMidi.Ports exposing (initialiseWebMidi)
@@ -26,13 +31,29 @@ main =
 type Msg
     = MidiMsg WebMidi.Msg.Msg
     | SoundFontMsg SoundFont.Msg.Msg
+    | ChangeInstrument String
 
 
 type alias Model =
     { audioContext : Maybe AudioContext
     , fontsLoaded : Bool
+    , instrument : String
     , webMidi : WebMidi.Model
     }
+
+
+instruments : List ( String, String )
+instruments =
+    [ ( "grand piano", "acoustic_grand_piano" )
+    , ( "harp", "orchestral_harp" )
+    , ( "harpsichord", "harpsichord" )
+    , ( "oboe", "oboe" )
+    ]
+
+
+instrumentMap : Dict String String
+instrumentMap =
+    fromList instruments
 
 
 init : ( Model, Cmd Msg )
@@ -43,6 +64,7 @@ init =
     in
         { audioContext = Nothing
         , fontsLoaded = False
+        , instrument = "acoustic_grand_piano"
         , webMidi = webMidi
         }
             ! [ Cmd.map MidiMsg webMidiCmd
@@ -57,7 +79,7 @@ update msg model =
             case soundFontMsg of
                 ResponseAudioContext context ->
                     ( { model | audioContext = Just context }
-                    , requestLoadPianoFonts "soundfonts"
+                    , requestLoadRemoteFonts model.instrument
                     )
 
                 ResponseFontsLoaded loaded ->
@@ -65,6 +87,13 @@ update msg model =
                     , initialiseWebMidi ()
                     )
 
+                {-
+                   RequestLoadRemoteFonts instrument ->
+                       ( { model | fontsLoaded = False, instrument = instrument }
+                         -- , requestLoadRemoteFonts "acoustic_grand_piano"
+                       , requestLoadRemoteFonts instrument
+                       )
+                -}
                 -- ignore any other messages
                 _ ->
                     ( model, Cmd.none )
@@ -83,6 +112,17 @@ update msg model =
                             WebMidi.update midiMsg model.webMidi
                     in
                         { model | webMidi = newWebMidi } ! [ Cmd.map MidiMsg cmd ]
+
+        ChangeInstrument instrument ->
+            let
+                gleitzName =
+                    Dict.get instrument instrumentMap
+                        |> withDefault "acoustic_grand_piano"
+            in
+                ( { model | fontsLoaded = False, instrument = instrument }
+                  -- , requestLoadRemoteFonts "acoustic_grand_piano"
+                , requestLoadRemoteFonts gleitzName
+                )
 
 
 
@@ -151,8 +191,62 @@ initialisationStatus model =
             "No Audio Context"
 
 
+instrumentMenu : Model -> Html Msg
+instrumentMenu model =
+    select
+        [ selectionStyle
+        , on "change"
+            (Json.map ChangeInstrument targetValue)
+        ]
+        (instrumentOptions model.instrument)
+
+
+selectedInstrument : String -> String -> Attribute Msg
+selectedInstrument target pattern =
+    selected (target == pattern)
+
+
+
+{- build the drop down list of instruments using the gleitz soundfont instrument name -}
+
+
+instrumentOptions : String -> List (Html Msg)
+instrumentOptions name =
+    let
+        f ( instrument, gleitzName ) =
+            option [ selectedInstrument name instrument ]
+                [ text instrument ]
+    in
+        List.map f instruments
+
+
+
+{-
+   instrumentOptions name =
+       [ option [ selectedInstrument name "acoustic_grand_piano" ]
+           [ text "acoustic_grand_piano" ]
+       , option [ selectedInstrument name "harpsichord" ]
+           [ text "harpsichord" ]
+       , option [ selectedInstrument name "orchestral_harp" ]
+           [ text "orchestral_harp" ]
+       ]
+-}
+
+
 view : Model -> Html Msg
 view model =
     div []
-        [ p [] [ text (initialisationStatus model) ]
+        [ p [] [ text ("instrument: " ++ model.instrument) ]
+        , p [] [ text (initialisationStatus model) ]
+        , span [] [ text "select an instrument" ]
+        , instrumentMenu model
+        ]
+
+
+selectionStyle : Attribute msg
+selectionStyle =
+    style
+        [ ( "margin-left", "40px" )
+        , ( "margin-top", "20px" )
+        , ( "font-size", "1em" )
         ]
