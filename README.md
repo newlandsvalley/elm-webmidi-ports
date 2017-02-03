@@ -35,7 +35,7 @@ To build, invoke __compilep.sh__ and browse to __piano.html__.
 
 ### Pick an Instrument
 
-[MidiInstrument.elm](https://github.com/newlandsvalley/elm-webmidi-ports/tree/master/examples/src/midiInstrument) allows you to plug in your MIDI keyboard or other MIDI device and to choose the instrumental sound it makes. In this case, the soundfonts are loaded directly from Benjamin Gleitzman's github package of [pre-rendered sound fonts](https://github.com/gleitz/midi-js-soundfonts). These may take a little longer to load.
+[MidiInstrument.elm](https://github.com/newlandsvalley/elm-webmidi-ports/tree/master/examples/src/midiInstrument/MidiInstrument.elm) allows you to plug in your MIDI keyboard or other MIDI device and to choose the instrumental sound it makes. In this case, the soundfonts are loaded directly from Benjamin Gleitzman's github package of [pre-rendered sound fonts](https://github.com/gleitz/midi-js-soundfonts). These may take a little longer to load.
 
 To build, invoke __compilemi.sh__ and browse to __midiInstrument.html__.
 
