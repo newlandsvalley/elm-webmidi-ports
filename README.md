@@ -21,6 +21,8 @@ Examples
 
 cd to the examples directory to see the sample programs.  
 
+(Examples have a dependency on elm-soundfont-ports which uses native code and which consequently is debarred from publication on http://package.elm-lang.org/. As a workaround, the elm code is reproduced in the SoundFont of the examples.)
+
 ### Basic
 
 [Basic.elm](https://github.com/newlandsvalley/elm-webmidi-ports/blob/master/examples/src/basic/Basic.elm) is functionally identical to WebMidi.elm.  It simply illustrates how you might embed the WebMidi module inside a larger program (but in this case this program does nothing else).
