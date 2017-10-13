@@ -11,9 +11,9 @@ import WebMidi.Types exposing (..)
 port initialiseWebMidi : () -> Cmd msg
 
 
-{-| request the MIDI input devices that are attached
+{-| request the MIDI devices that are attached
 -}
-port requestInputDevices : () -> Cmd msg
+port requestDevices : () -> Cmd msg
 
 
 
@@ -30,9 +30,19 @@ port initialised : (Bool -> msg) -> Sub msg
 port inputDevice : (MidiConnection -> msg) -> Sub msg
 
 
+{-| return a MIDI output device which may be connecting or pre-connected
+-}
+port outputDevice : (MidiConnection -> msg) -> Sub msg
+
+
 {-| return a MIDI input device which is disconnecting and thus about to be disconnected
 -}
-port disconnected : (MidiDisconnection -> msg) -> Sub msg
+port inputDisconnected : (MidiDisconnection -> msg) -> Sub msg
+
+
+{-| return a MIDI output device which is disconnecting and thus about to be disconnected
+-}
+port outputDisconnected : (MidiDisconnection -> msg) -> Sub msg
 
 
 {-| return a MIDI event (e.g. note on or note off etc. -)

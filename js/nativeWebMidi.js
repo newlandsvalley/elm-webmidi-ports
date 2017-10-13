@@ -15,10 +15,10 @@ function webMidiConnect () {
    }
  }
 
-myapp.ports.requestInputDevices.subscribe(detectInputDevices);
+myapp.ports.requestDevices.subscribe(detectDevices);
 
 
-function detectInputDevices () {
+function detectDevices () {
 
    console.log('MIDIConnect');
    // request MIDI access and then connect
@@ -38,6 +38,13 @@ function onMIDISuccess(midiAccess) {
      midiAccess.inputs.forEach( function( input, id, inputMap ) {
        registerInput(input);
        input.onmidimessage = onMIDIMessage;
+     });
+
+     var outputs = midiAccess.outputs.values();
+     // loop over any register inputs and listen for data on each
+     midiAccess.outputs.forEach( function( output, id, outputMap ) {
+       registerOutput(output);
+       output.onmidimessage = onMIDIMessage;
      });
 
      // listen for connect/disconnect message
@@ -60,11 +67,27 @@ function registerInput(input){
      myapp.ports.inputDevice.send(midiConnection);
 }
 
+// register an output device
+function registerOutput(output){
+     /* */
+     console.log("output port : [ type:'" + output.type + "' id: '" + output.id +
+        "' manufacturer: '" + output.manufacturer + "' name: '" + output.name +
+        "' version: '" + output.version + "']");
+     /* */
+     var midiConnection = { portType : output.type
+                          , id : output.id
+                          , manufacturer : output.manufacturer
+                          , name : output.name
+                          , version : output.version };
+
+     myapp.ports.outputDevice.send(midiConnection);
+}
+
 // input connect/disconnect signal
 function onStateChange(event){
-	// showMIDIPorts(midi);
-	var port = event.port, state = port.state, name = port.name, type = port.type, id = port.id;
-	if (port.type == "input") {
+    // showMIDIPorts(midi);
+    var port = event.port, state = port.state, name = port.name, type = port.type, id = port.id;
+    if (port.type == "input") {
         console.log("State change:", state);
         if (state == "connected") {
              var midiConnection = { portType : port.type
@@ -73,15 +96,32 @@ function onStateChange(event){
                                   , name : port.name
                                   , version : port.version };
 
-             myapp.ports.inputDevice.send(midiConnection);
-             port.onmidimessage = onMIDIMessage;
-           }
-           else if  (state == "disconnected") {
-             var midiDisconnection = { portType : port.type
-                                     , id : port.id };
+          myapp.ports.inputDevice.send(midiConnection);
+          port.onmidimessage = onMIDIMessage;
+        }
+        else if  (state == "disconnected") {
+          var midiDisconnection = { portType : port.type
+                                  , id : port.id };
 
-             myapp.ports.disconnected.send(midiDisconnection);
-           }
+          myapp.ports.inputDisconnected.send(midiDisconnection);
+        }
+    }
+    else if (port.type == "output") {
+        if (state == "connected") {
+             var midiConnection = { portType : port.type
+                                  , id : port.id
+                                  , manufacturer : port.manufacturer
+                                  , name : port.name
+                                  , version : port.version };
+
+             myapp.ports.outputDevice.send(midiConnection);
+        }
+        else if  (state == "disconnected") {
+          var midiDisconnection = { portType : port.type
+                                  , id : port.id };
+
+          myapp.ports.outputDisconnected.send(midiDisconnection);
+        }
     }
 }
 
