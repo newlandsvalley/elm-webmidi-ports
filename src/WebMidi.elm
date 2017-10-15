@@ -109,6 +109,11 @@ update msg model =
             , Cmd.none
             )
 
+        OutEvent bytes ->
+            ( model
+            , sendMidi bytes
+            )
+
 
 addInputDevice : MidiConnection -> Model -> Model
 addInputDevice device model =

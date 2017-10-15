@@ -2,7 +2,6 @@
 
 myapp.ports.initialiseWebMidi.subscribe(webMidiConnect);
 
-
 function webMidiConnect () {
 
    console.log('MIDIConnect');
@@ -17,7 +16,6 @@ function webMidiConnect () {
 
 myapp.ports.requestDevices.subscribe(detectDevices);
 
-
 function detectDevices () {
 
    console.log('MIDIConnect');
@@ -29,7 +27,14 @@ function detectDevices () {
    }
 }
 
- // Set up all the signals we expect if MIDI is supported
+myapp.ports.sendMidi.subscribe(sendMidiPlaceholder);
+
+function sendMidiPlaceholder (bytes) {
+   console.warn('sendMidi error: No midi access yet.')
+}
+
+
+// Set up all the signals we expect if MIDI is supported
 function onMIDISuccess(midiAccess) {
      // console.log('MIDI Access Object', midiAccess);
 
@@ -49,6 +54,18 @@ function onMIDISuccess(midiAccess) {
 
      // listen for connect/disconnect message
      midiAccess.onstatechange = onStateChange;
+
+     // define sendMidi to use midiAccess
+     function sendMidi (bytes) {
+         var realBytes = new Uint8Array(bytes);
+         console.log('sendMidi: ', realBytes);
+         midiAccess.outputs.forEach( function( port, key ) {
+             port.send(bytes);
+         });
+     }
+     // point sendMidi to the new function
+     myapp.ports.sendMidi.subscribe(sendMidi);
+     myapp.ports.sendMidi.unsubscribe(sendMidiPlaceholder);
 }
 
 // register an input device

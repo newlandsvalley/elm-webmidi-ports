@@ -16,6 +16,11 @@ port initialiseWebMidi : () -> Cmd msg
 port requestDevices : () -> Cmd msg
 
 
+{-| send a MIDI message
+-}
+port sendMidi : List Int -> Cmd msg
+
+
 
 -- incoming ports (for subscriptions from javascript)
 
