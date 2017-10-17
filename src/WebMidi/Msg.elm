@@ -7,8 +7,11 @@ import MidiTypes exposing (MidiEvent)
 type Msg
     = WebMidiInitialise
     | ResponseWebMidiInitialised Bool
-    | RequestInputDevices
+    | RequestDevices
     | ResponseInputDevice MidiConnection
-    | DeviceDisconnected MidiDisconnection
+    | ResponseOutputDevice MidiConnection
+    | InputDeviceDisconnected MidiDisconnection
+    | OutputDeviceDisconnected MidiDisconnection
     | EncodedEvent MidiEncodedEvent
     | Event (Result String MidiEvent)
+    | OutEvent (List Int)

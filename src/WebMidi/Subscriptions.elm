@@ -13,14 +13,24 @@ initialisedSub =
     initialised ResponseWebMidiInitialised
 
 
-disconnectedSub : Sub Msg
-disconnectedSub =
-    disconnected DeviceDisconnected
+inputDisconnectedSub : Sub Msg
+inputDisconnectedSub =
+    inputDisconnected InputDeviceDisconnected
+
+
+outputDisconnectedSub : Sub Msg
+outputDisconnectedSub =
+    outputDisconnected OutputDeviceDisconnected
 
 
 inputDeviceSub : Sub Msg
 inputDeviceSub =
     inputDevice ResponseInputDevice
+
+
+outputDeviceSub : Sub Msg
+outputDeviceSub =
+    outputDevice ResponseOutputDevice
 
 
 eventSub : Sub Msg

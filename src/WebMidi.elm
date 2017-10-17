@@ -34,13 +34,14 @@ volumeCeiling =
 type alias Model =
     { initialised : Bool
     , inputDevices : List MidiConnection
+    , outputDevices : List MidiConnection
     , midiEvent : Result String MidiEvent
     , maxVolume : Int
     }
 
 
 init =
-    ( Model False [] (Err "notes not started") (volumeCeiling // 2)
+    ( Model False [] [] (Err "notes not started") (volumeCeiling // 2)
     , Cmd.none
     )
 
@@ -53,22 +54,32 @@ update msg model =
 
         ResponseWebMidiInitialised isInitialised ->
             ( { model | initialised = isInitialised }
-            , requestInputDevices ()
+            , requestDevices ()
             )
 
-        DeviceDisconnected disconnectedDevice ->
-            ( removeDevice disconnectedDevice model
+        InputDeviceDisconnected disconnectedDevice ->
+            ( removeInputDevice disconnectedDevice model
+            , Cmd.none
+            )
+
+        OutputDeviceDisconnected disconnectedDevice ->
+            ( removeOutputDevice disconnectedDevice model
             , Cmd.none
             )
 
         -- not called - done directly from the Connected response
-        RequestInputDevices ->
+        RequestDevices ->
             ( model
             , Cmd.none
             )
 
         ResponseInputDevice connectedDevice ->
-            ( addDevice connectedDevice model
+            ( addInputDevice connectedDevice model
+            , Cmd.none
+            )
+
+        ResponseOutputDevice connectedDevice ->
+            ( addOutputDevice connectedDevice model
             , Cmd.none
             )
 
@@ -98,9 +109,14 @@ update msg model =
             , Cmd.none
             )
 
+        OutEvent bytes ->
+            ( model
+            , sendMidi bytes
+            )
 
-addDevice : MidiConnection -> Model -> Model
-addDevice device model =
+
+addInputDevice : MidiConnection -> Model -> Model
+addInputDevice device model =
     let
         isNew =
             List.filter (\d -> d.id == device.id) model.inputDevices
@@ -112,13 +128,35 @@ addDevice device model =
             model
 
 
-removeDevice : MidiDisconnection -> Model -> Model
-removeDevice disconnection model =
+addOutputDevice : MidiConnection -> Model -> Model
+addOutputDevice device model =
+    let
+        isNew =
+            List.filter (\d -> d.id == device.id) model.outputDevices
+                |> List.isEmpty
+    in
+        if (isNew) then
+            { model | outputDevices = device :: model.outputDevices }
+        else
+            model
+
+
+removeInputDevice : MidiDisconnection -> Model -> Model
+removeInputDevice disconnection model =
     let
         devices =
             List.filter (\d -> d.id /= disconnection.id) model.inputDevices
     in
         { model | inputDevices = devices, midiEvent = Err "notes not started" }
+
+
+removeOutputDevice : MidiDisconnection -> Model -> Model
+removeOutputDevice disconnection model =
+    let
+        devices =
+            List.filter (\d -> d.id /= disconnection.id) model.outputDevices
+    in
+        { model | outputDevices = devices, midiEvent = Err "notes not started" }
 
 
 forwardEvent : Result String MidiEvent -> Cmd Msg
@@ -154,7 +192,9 @@ subscriptions model =
     Sub.batch
         [ initialisedSub
         , inputDeviceSub
-        , disconnectedSub
+        , outputDeviceSub
+        , inputDisconnectedSub
+        , outputDisconnectedSub
         , eventSub
         ]
 
@@ -171,6 +211,16 @@ viewInputDevices model =
             p [] [ text (toString m.name) ]
     in
         List.map fn model.inputDevices
+
+
+viewOutputDevices : Model -> List (Html Msg)
+viewOutputDevices model =
+    let
+        fn : MidiConnection -> Html Msg
+        fn m =
+            p [] [ text (toString m.name) ]
+    in
+        List.map fn model.outputDevices
 
 
 viewMidiEvent : Model -> String
@@ -193,7 +243,10 @@ view model =
             ]
             [ text "initialise web-midi" ]
         , p [] [ text ("initialised: " ++ (toString model.initialised)) ]
-        , div [] (viewInputDevices model)
+        , p [] [ text "Inputs:" ]
+        , div [ style [ ("margin-left", "5%") ] ] (viewInputDevices model)
+        , p [] [ text "Outputs:" ]
+        , div [ style [ ("margin-left", "5%") ] ] (viewOutputDevices model)
         , div [] [ text (viewMidiEvent model) ]
         , div [] [ text ("max volume : " ++ (toString model.maxVolume)) ]
         ]
