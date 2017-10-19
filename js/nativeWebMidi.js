@@ -42,14 +42,13 @@ function onMIDISuccess(midiAccess) {
      // loop over any register inputs and listen for data on each
      midiAccess.inputs.forEach( function( input, id, inputMap ) {
        registerInput(input);
-       input.onmidimessage = onMIDIMessage;
+       input.onmidimessage = onMIDIMessage.bind(null, id);
      });
 
      var outputs = midiAccess.outputs.values();
-     // loop over any register inputs and listen for data on each
+     // loop over any register outputs
      midiAccess.outputs.forEach( function( output, id, outputMap ) {
        registerOutput(output);
-       output.onmidimessage = onMIDIMessage;
      });
 
      // listen for connect/disconnect message
@@ -114,7 +113,7 @@ function onStateChange(event){
                                   , version : port.version };
 
           myapp.ports.inputDevice.send(midiConnection);
-          port.onmidimessage = onMIDIMessage;
+          port.onmidimessage = onMIDIMessage.bind(null, port.id);
         }
         else if  (state == "disconnected") {
           var midiDisconnection = { portType : port.type
@@ -143,11 +142,13 @@ function onStateChange(event){
 }
 
 // MIDI message signal
-function onMIDIMessage(event){
+function onMIDIMessage(id, event){
     // sourceId = event.srcElement.id;
     // console.log("MIDI Message");
-    var encodedEvent = { timeStamp : event.timeStamp
-                       , encodedBinary : encodeAsString(event.data)};
+    var encodedEvent = { id : id
+                       , timeStamp : event.timeStamp
+                       , encodedBinary : encodeAsString(event.data)
+                       };
     myapp.ports.encodedEvent.send(encodedEvent);
 }
 

@@ -24,6 +24,7 @@ type alias MidiDisconnection =
 {-| a MIDI event with the event data encoded as a string which is amenable to parsing
 -}
 type alias MidiEncodedEvent =
-    { timeStamp : Float
+    { id : String
+    , timeStamp : Float
     , encodedBinary : String
     }

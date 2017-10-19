@@ -35,13 +35,13 @@ type alias Model =
     { initialised : Bool
     , inputDevices : List MidiConnection
     , outputDevices : List MidiConnection
-    , midiEvent : Result String MidiEvent
+    , midiEvent : (String, Float, Result String MidiEvent)
     , maxVolume : Int
     }
 
 
 init =
-    ( Model False [] [] (Err "notes not started") (volumeCeiling // 2)
+    ( Model False [] [] ("", 0, Err "notes not started") (volumeCeiling // 2)
     , Cmd.none
     )
 
@@ -98,14 +98,18 @@ update msg model =
                 -- intercept any control messages we care about
                 newModel =
                     recogniseControlMessage midiEvent model
+
+                -- package everything up into an event
+                outEvent =
+                    Event encodedEvent.id encodedEvent.timeStamp midiEvent
             in
                 ( newModel
-                , forwardEvent (midiEvent)
+                , forwardMsg outEvent
                 )
 
-        -- we do export a dcoded event
-        Event event ->
-            ( { model | midiEvent = event }
+        -- we do export a decoded event
+        Event id timeStamp event ->
+            ( { model | midiEvent = (id, timeStamp, event) }
             , Cmd.none
             )
 
@@ -147,7 +151,7 @@ removeInputDevice disconnection model =
         devices =
             List.filter (\d -> d.id /= disconnection.id) model.inputDevices
     in
-        { model | inputDevices = devices, midiEvent = Err "notes not started" }
+        { model | inputDevices = devices, midiEvent = ("", 0, Err "notes not started") }
 
 
 removeOutputDevice : MidiDisconnection -> Model -> Model
@@ -156,12 +160,12 @@ removeOutputDevice disconnection model =
         devices =
             List.filter (\d -> d.id /= disconnection.id) model.outputDevices
     in
-        { model | outputDevices = devices, midiEvent = Err "notes not started" }
+        { model | outputDevices = devices, midiEvent = ("", 0, Err "notes not started") }
 
 
-forwardEvent : Result String MidiEvent -> Cmd Msg
-forwardEvent event =
-    Task.perform Event (succeed event)
+forwardMsg : Msg -> Cmd Msg
+forwardMsg msg =
+    Task.perform identity (succeed msg)
 
 
 {-| recognise and act on a control message and save to the model state
@@ -226,11 +230,11 @@ viewOutputDevices model =
 viewMidiEvent : Model -> String
 viewMidiEvent model =
     case model.midiEvent of
-        Ok event ->
-            log "" (toString event)
+        (id, timeStamp, Ok event) ->
+            log "" ((toString event) ++ " " ++ id ++ " " ++ (toString timeStamp))
 
-        Err msg ->
-            log "parse error" msg
+        (id, timeStamp, Err msg) ->
+            log "parse error" (msg ++ " " ++ id ++ " " ++ (toString timeStamp))
 
 
 view : Model -> Html Msg
