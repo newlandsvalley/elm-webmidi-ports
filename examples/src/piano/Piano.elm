@@ -71,7 +71,7 @@ update msg model =
 
         MidiMsg midiMsg ->
             case midiMsg of
-                Event midiEvent ->
+                Event _ _ midiEvent ->
                     ( model
                     , playNote midiEvent model
                     )
