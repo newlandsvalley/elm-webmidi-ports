@@ -35,13 +35,13 @@ type alias Model =
     { initialised : Bool
     , inputDevices : List MidiConnection
     , outputDevices : List MidiConnection
-    , midiEvent : (String, Float, Result String MidiEvent)
+    , lastMidiMessage : String
     , maxVolume : Int
     }
 
 
 init =
-    ( Model False [] [] ("", 0, Err "notes not started") (volumeCeiling // 2)
+    ( Model False [] [] "notes not started" (volumeCeiling // 2)
     , Cmd.none
     )
 
@@ -109,9 +109,13 @@ update msg model =
 
         -- we do export a decoded event
         Event id timeStamp event ->
-            ( { model | midiEvent = (id, timeStamp, event) }
-            , Cmd.none
-            )
+            let
+                midiMsg = (toString event) ++
+                    " from " ++ id ++ " at " ++ (toString timeStamp)
+            in
+                ( { model | lastMidiMessage = midiMsg }
+                , Cmd.none
+                )
 
         OutEvent bytes ->
             ( model
@@ -151,7 +155,7 @@ removeInputDevice disconnection model =
         devices =
             List.filter (\d -> d.id /= disconnection.id) model.inputDevices
     in
-        { model | inputDevices = devices, midiEvent = ("", 0, Err "notes not started") }
+        { model | inputDevices = devices }
 
 
 removeOutputDevice : MidiDisconnection -> Model -> Model
@@ -160,7 +164,7 @@ removeOutputDevice disconnection model =
         devices =
             List.filter (\d -> d.id /= disconnection.id) model.outputDevices
     in
-        { model | outputDevices = devices, midiEvent = ("", 0, Err "notes not started") }
+        { model | outputDevices = devices }
 
 
 forwardMsg : Msg -> Cmd Msg
@@ -227,16 +231,6 @@ viewOutputDevices model =
         List.map fn model.outputDevices
 
 
-viewMidiEvent : Model -> String
-viewMidiEvent model =
-    case model.midiEvent of
-        (id, timeStamp, Ok event) ->
-            log "" ((toString event) ++ " " ++ id ++ " " ++ (toString timeStamp))
-
-        (id, timeStamp, Err msg) ->
-            log "parse error" (msg ++ " " ++ id ++ " " ++ (toString timeStamp))
-
-
 view : Model -> Html Msg
 view model =
     div []
@@ -251,7 +245,7 @@ view model =
         , div [ style [ ("margin-left", "5%") ] ] (viewInputDevices model)
         , p [] [ text "Outputs:" ]
         , div [ style [ ("margin-left", "5%") ] ] (viewOutputDevices model)
-        , div [] [ text (viewMidiEvent model) ]
+        , div [] [ text model.lastMidiMessage ]
         , div [] [ text ("max volume : " ++ (toString model.maxVolume)) ]
         ]
 
