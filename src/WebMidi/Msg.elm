@@ -13,5 +13,5 @@ type Msg
     | InputDeviceDisconnected MidiDisconnection
     | OutputDeviceDisconnected MidiDisconnection
     | EncodedEvent MidiEncodedEvent
-    | Event (Result String MidiEvent)
+    | Event String Float (Result String MidiEvent)
     | OutEvent (List Int)

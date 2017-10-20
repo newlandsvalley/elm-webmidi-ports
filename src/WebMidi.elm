@@ -1,5 +1,6 @@
 module WebMidi exposing (Model, init, update, view, subscriptions)
 
+import Dict exposing (Dict)
 import Html exposing (Html, Attribute, p, text, div, button)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
@@ -33,15 +34,22 @@ volumeCeiling =
 
 type alias Model =
     { initialised : Bool
-    , inputDevices : List MidiConnection
-    , outputDevices : List MidiConnection
-    , midiEvent : Result String MidiEvent
+    , inputDevices : Dict String MidiConnection
+    , outputDevices : Dict String MidiConnection
+    , lastMidiMessage : String
     , maxVolume : Int
     }
 
+initialModel =
+    { initialised = False
+    , inputDevices = Dict.empty
+    , outputDevices = Dict.empty
+    , lastMidiMessage = "notes not started"
+    , maxVolume = (volumeCeiling // 2)
+    }
 
 init =
-    ( Model False [] [] (Err "notes not started") (volumeCeiling // 2)
+    ( initialModel
     , Cmd.none
     )
 
@@ -98,16 +106,28 @@ update msg model =
                 -- intercept any control messages we care about
                 newModel =
                     recogniseControlMessage midiEvent model
+
+                -- package everything up into an event
+                outEvent =
+                    Event encodedEvent.id encodedEvent.timeStamp midiEvent
             in
                 ( newModel
-                , forwardEvent (midiEvent)
+                , forwardMsg outEvent
                 )
 
-        -- we do export a dcoded event
-        Event event ->
-            ( { model | midiEvent = event }
-            , Cmd.none
-            )
+        -- we do export a decoded event
+        Event id timeStamp event ->
+            let
+                deviceName =
+                    case Dict.get id model.inputDevices of
+                        Just device -> device.name
+                        Nothing -> "unknown"
+                midiMsg = (toString event) ++
+                    " from " ++ deviceName ++ " at " ++ (toString timeStamp)
+            in
+                ( { model | lastMidiMessage = midiMsg }
+                , Cmd.none
+                )
 
         OutEvent bytes ->
             ( model
@@ -118,50 +138,42 @@ update msg model =
 addInputDevice : MidiConnection -> Model -> Model
 addInputDevice device model =
     let
-        isNew =
-            List.filter (\d -> d.id == device.id) model.inputDevices
-                |> List.isEmpty
+        devices =
+            Dict.insert device.id device model.inputDevices
     in
-        if (isNew) then
-            { model | inputDevices = device :: model.inputDevices }
-        else
-            model
+        { model | inputDevices = devices }
 
 
 addOutputDevice : MidiConnection -> Model -> Model
 addOutputDevice device model =
     let
-        isNew =
-            List.filter (\d -> d.id == device.id) model.outputDevices
-                |> List.isEmpty
+        devices =
+            Dict.insert device.id device model.outputDevices
     in
-        if (isNew) then
-            { model | outputDevices = device :: model.outputDevices }
-        else
-            model
+        { model | outputDevices = devices }
 
 
 removeInputDevice : MidiDisconnection -> Model -> Model
 removeInputDevice disconnection model =
     let
         devices =
-            List.filter (\d -> d.id /= disconnection.id) model.inputDevices
+            Dict.remove disconnection.id model.inputDevices
     in
-        { model | inputDevices = devices, midiEvent = Err "notes not started" }
+        { model | inputDevices = devices }
 
 
 removeOutputDevice : MidiDisconnection -> Model -> Model
 removeOutputDevice disconnection model =
     let
         devices =
-            List.filter (\d -> d.id /= disconnection.id) model.outputDevices
+            Dict.remove disconnection.id model.outputDevices
     in
-        { model | outputDevices = devices, midiEvent = Err "notes not started" }
+        { model | outputDevices = devices }
 
 
-forwardEvent : Result String MidiEvent -> Cmd Msg
-forwardEvent event =
-    Task.perform Event (succeed event)
+forwardMsg : Msg -> Cmd Msg
+forwardMsg msg =
+    Task.perform identity (succeed msg)
 
 
 {-| recognise and act on a control message and save to the model state
@@ -210,7 +222,7 @@ viewInputDevices model =
         fn m =
             p [] [ text (toString m.name) ]
     in
-        List.map fn model.inputDevices
+        List.map fn (Dict.values model.inputDevices)
 
 
 viewOutputDevices : Model -> List (Html Msg)
@@ -220,17 +232,7 @@ viewOutputDevices model =
         fn m =
             p [] [ text (toString m.name) ]
     in
-        List.map fn model.outputDevices
-
-
-viewMidiEvent : Model -> String
-viewMidiEvent model =
-    case model.midiEvent of
-        Ok event ->
-            log "" (toString event)
-
-        Err msg ->
-            log "parse error" msg
+        List.map fn (Dict.values model.outputDevices)
 
 
 view : Model -> Html Msg
@@ -247,7 +249,7 @@ view model =
         , div [ style [ ("margin-left", "5%") ] ] (viewInputDevices model)
         , p [] [ text "Outputs:" ]
         , div [ style [ ("margin-left", "5%") ] ] (viewOutputDevices model)
-        , div [] [ text (viewMidiEvent model) ]
+        , div [] [ text model.lastMidiMessage ]
         , div [] [ text ("max volume : " ++ (toString model.maxVolume)) ]
         ]
 
