@@ -129,10 +129,14 @@ update msg model =
                 , Cmd.none
                 )
 
-        OutEvent bytes ->
-            ( model
-            , sendMidiAll bytes
-            )
+        OutEvent maybeId bytes ->
+            case maybeId of
+                Just id ->
+                    ( model, Cmd.none )
+                Nothing ->
+                    ( model
+                    , sendMidiAll bytes
+                    )
 
 
 addInputDevice : MidiConnection -> Model -> Model

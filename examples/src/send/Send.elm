@@ -28,8 +28,8 @@ type Msg
     | ChangeVelocity Int
     | ChangeChannel Int
     | BadVal
-    | SendNoteOn
-    | SendNoteOff
+    | SendNoteOnAll
+    | SendNoteOffAll
 
 
 type alias Model =
@@ -70,21 +70,23 @@ update msg model =
 
         BadVal -> model ! []
 
-        SendNoteOn ->
+        SendNoteOnAll ->
             let
-               midiMsgOut = OutEvent [128 + 16 + model.channel, model.note, model.velocity]
-               ( newWebMidi, cmd ) =
-                     WebMidi.update midiMsgOut model.webMidi
+                bytes = [128 + 16 + model.channel, model.note, model.velocity]
+                midiMsgOut = OutEvent Nothing bytes
+                ( newWebMidi, cmd ) =
+                   WebMidi.update midiMsgOut model.webMidi
             in
-               { model | webMidi = newWebMidi } ! [ Cmd.map MidiMsg cmd ]
+                { model | webMidi = newWebMidi } ! [ Cmd.map MidiMsg cmd ]
 
-        SendNoteOff ->
+        SendNoteOffAll ->
             let
-               midiMsgOut = OutEvent [128 + model.channel, model.note, model.velocity]
-               ( newWebMidi, cmd ) =
-                     WebMidi.update midiMsgOut model.webMidi
+                bytes = [128 + model.channel, model.note, model.velocity]
+                midiMsgOut = OutEvent Nothing bytes
+                ( newWebMidi, cmd ) =
+                   WebMidi.update midiMsgOut model.webMidi
             in
-               { model | webMidi = newWebMidi } ! [ Cmd.map MidiMsg cmd ]
+                { model | webMidi = newWebMidi } ! [ Cmd.map MidiMsg cmd ]
 
         MidiMsg midiMsg ->
             let
@@ -146,7 +148,7 @@ view model =
             , input [ onInput channelUpdated, defaultValue "1", A.min "1", A.max "16", A.type_ "number" ] [] 
             ]
         , p []
-            [ button [ onClick SendNoteOn ] [ text "Note On" ]
-            , button [ onClick SendNoteOff ] [ text "Note Off" ]
+            [ button [ onClick SendNoteOnAll ] [ text "Note On All" ]
+            , button [ onClick SendNoteOffAll ] [ text "Note Off All" ]
             ]
         ]
