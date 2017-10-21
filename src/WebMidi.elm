@@ -131,7 +131,7 @@ update msg model =
 
         OutEvent bytes ->
             ( model
-            , sendMidi bytes
+            , sendMidiAll bytes
             )
 
 
