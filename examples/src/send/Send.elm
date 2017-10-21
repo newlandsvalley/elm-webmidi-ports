@@ -1,15 +1,18 @@
 module Send exposing (..)
 
-import Html exposing (Html, Attribute, map, div, p, text, input, button)
-import Html.Attributes exposing (defaultValue)
+import Dict exposing (Dict)
+import Html exposing (Html, Attribute, map, div, p, text, input, button, select, option)
+import Html.Attributes exposing (defaultValue, value)
 import Html.Attributes as A
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (onClick, onInput, on, targetValue)
 import WebMidi exposing (Model, init, update, subscriptions)
 import WebMidi.Msg exposing (..)
 import WebMidi.Ports exposing (initialiseWebMidi)
 import WebMidi.Subscriptions exposing (eventSub)
+import WebMidi.Types exposing (MidiConnection)
 import MidiTypes exposing (MidiEvent(..))
 import Debug exposing (log)
+import Json.Decode as JD
 
 
 {- This program allows you to send note on and note off midi messages to all
@@ -30,6 +33,9 @@ type Msg
     | BadVal
     | SendNoteOnAll
     | SendNoteOffAll
+    | SendNoteOn
+    | SendNoteOff
+    | ChangeId String
 
 
 type alias Model =
@@ -37,6 +43,7 @@ type alias Model =
     , note : Int
     , velocity : Int
     , channel : Int
+    , maybeId : Maybe String
     }
 
 
@@ -50,10 +57,25 @@ init =
         , note = 36
         , velocity = 127
         , channel = 0
+        , maybeId = Nothing
         }
             ! [ Cmd.map MidiMsg webMidiCmd
               , initialiseWebMidi ()
               ]
+
+
+sendNoteOnMsg channel note velocity maybeId =
+   let
+       bytes = [128 + 16 + channel, note, velocity]
+   in
+       OutEvent maybeId bytes
+
+
+sendNoteOffMsg channel note velocity maybeId =
+   let
+       bytes = [128 + channel, note, velocity]
+   in
+       OutEvent maybeId bytes
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -72,8 +94,8 @@ update msg model =
 
         SendNoteOnAll ->
             let
-                bytes = [128 + 16 + model.channel, model.note, model.velocity]
-                midiMsgOut = OutEvent Nothing bytes
+                midiMsgOut =
+                   sendNoteOnMsg model.channel model.note model.velocity Nothing
                 ( newWebMidi, cmd ) =
                    WebMidi.update midiMsgOut model.webMidi
             in
@@ -81,12 +103,36 @@ update msg model =
 
         SendNoteOffAll ->
             let
-                bytes = [128 + model.channel, model.note, model.velocity]
-                midiMsgOut = OutEvent Nothing bytes
+                midiMsgOut =
+                   sendNoteOffMsg model.channel model.note model.velocity Nothing
                 ( newWebMidi, cmd ) =
                    WebMidi.update midiMsgOut model.webMidi
             in
                 { model | webMidi = newWebMidi } ! [ Cmd.map MidiMsg cmd ]
+
+        SendNoteOn ->
+            case model.maybeId of
+               Just id ->
+                  let
+                     midiMsgOut =
+                        sendNoteOnMsg model.channel model.note model.velocity (Just id)
+                     ( newWebMidi, cmd ) =
+                        WebMidi.update midiMsgOut model.webMidi
+                  in
+                     { model | webMidi = newWebMidi } ! [ Cmd.map MidiMsg cmd ]
+               Nothing -> ( model, Cmd.none )
+
+        SendNoteOff ->
+            case model.maybeId of
+               Just id ->
+                  let
+                     midiMsgOut =
+                        sendNoteOffMsg model.channel model.note model.velocity (Just id)
+                     ( newWebMidi, cmd ) =
+                        WebMidi.update midiMsgOut model.webMidi
+                  in
+                     { model | webMidi = newWebMidi } ! [ Cmd.map MidiMsg cmd ]
+               Nothing -> ( model, Cmd.none )
 
         MidiMsg midiMsg ->
             let
@@ -94,6 +140,8 @@ update msg model =
                      WebMidi.update midiMsg model.webMidi
             in
                { model | webMidi = newWebMidi } ! [ Cmd.map MidiMsg cmd ]
+
+        ChangeId newId -> { model | maybeId = Just (log "newId" newId) } ! []
 
 
 
@@ -131,6 +179,13 @@ channelUpdated str =
          Err _ -> BadVal
 
 
+viewMidiOutputs : Dict String MidiConnection -> List (Html Msg)
+viewMidiOutputs midiOutputs =
+   let
+       toOption (id, mc) = option [ value id ] [ text mc.name ]
+   in
+       List.map toOption (Dict.toList midiOutputs)
+
 view : Model -> Html Msg
 view model =
     div []
@@ -150,5 +205,14 @@ view model =
         , p []
             [ button [ onClick SendNoteOnAll ] [ text "Note On All" ]
             , button [ onClick SendNoteOffAll ] [ text "Note Off All" ]
+            ]
+        , p []
+            [ select 
+               [ on "change" (JD.map ChangeId targetValue)]
+               (viewMidiOutputs model.webMidi.outputDevices)
+            ]
+        , p []
+            [ button [ onClick SendNoteOn ] [ text "Note On" ]
+            , button [ onClick SendNoteOff ] [ text "Note Off" ]
             ]
         ]

@@ -132,7 +132,9 @@ update msg model =
         OutEvent maybeId bytes ->
             case maybeId of
                 Just id ->
-                    ( model, Cmd.none )
+                    ( model
+                    , sendMidi (id, bytes)
+                    )
                 Nothing ->
                     ( model
                     , sendMidiAll bytes

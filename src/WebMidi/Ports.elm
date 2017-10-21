@@ -20,6 +20,10 @@ port requestDevices : () -> Cmd msg
 -}
 port sendMidiAll : List Int -> Cmd msg
 
+{-| send a MIDI message to a specific device
+-}
+port sendMidi : (String, List Int) -> Cmd msg
+
 
 
 -- incoming ports (for subscriptions from javascript)

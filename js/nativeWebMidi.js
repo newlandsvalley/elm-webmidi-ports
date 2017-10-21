@@ -28,9 +28,13 @@ function detectDevices () {
 }
 
 myapp.ports.sendMidiAll.subscribe(sendMidiAllPlaceholder);
+myapp.ports.sendMidi.subscribe(sendMidiPlaceholder);
 
 function sendMidiAllPlaceholder (bytes) {
    console.warn('sendMidiAll error: No midi access yet.')
+}
+function sendMidiPlaceholder (arg) {
+   console.warn('sendMidi error: No midi access yet.')
 }
 
 
@@ -54,7 +58,7 @@ function onMIDISuccess(midiAccess) {
      // listen for connect/disconnect message
      midiAccess.onstatechange = onStateChange;
 
-     // define sendMidiAll to use midiAccess
+     // define sendMidi and sendMidiAll to use midiAccess
      function sendMidiAll (bytes) {
          var realBytes = new Uint8Array(bytes);
          console.log('sendMidiAll: ', realBytes);
@@ -62,9 +66,22 @@ function onMIDISuccess(midiAccess) {
              port.send(bytes);
          });
      }
+     function sendMidi (arg) {
+         console.log('sendMidi: ', arg);
+         var [id, bytes] = arg;
+         var realBytes = new Uint8Array(bytes);
+         var midiOut = midiAccess.outputs.get(id);
+         if (midiOut == undefined) {
+          console.warn('Trying to send MIDI to unknown device: ', id);
+         } else {
+           midiOut.send(bytes);
+         }
+     }
      // point sendMidiAll to the new function
      myapp.ports.sendMidiAll.subscribe(sendMidiAll);
      myapp.ports.sendMidiAll.unsubscribe(sendMidiAllPlaceholder);
+     myapp.ports.sendMidi.subscribe(sendMidi);
+     myapp.ports.sendMidi.unsubscribe(sendMidiPlaceholder);
 }
 
 // register an input device
