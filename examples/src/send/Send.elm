@@ -2,9 +2,9 @@ module Send exposing (..)
 
 import Dict exposing (Dict)
 import Html exposing (Html, Attribute, map, div, p, text, input, button, select, option)
-import Html.Attributes exposing (defaultValue, value)
+import Html.Attributes exposing (defaultValue, value, selected)
 import Html.Attributes as A
-import Html.Events exposing (onClick, onInput, on, targetValue)
+import Html.Events exposing (onClick, onInput, on)
 import WebMidi exposing (Model, init, update, subscriptions)
 import WebMidi.Msg exposing (..)
 import WebMidi.Ports exposing (initialiseWebMidi)
@@ -12,7 +12,6 @@ import WebMidi.Subscriptions exposing (eventSub)
 import WebMidi.Types exposing (MidiConnection)
 import MidiTypes exposing (MidiEvent(..))
 import Debug exposing (log)
-import Json.Decode as JD
 
 
 {- This program allows you to send note on and note off midi messages to all
@@ -135,11 +134,32 @@ update msg model =
                Nothing -> ( model, Cmd.none )
 
         MidiMsg midiMsg ->
-            let
-               ( newWebMidi, cmd ) =
-                     WebMidi.update midiMsg model.webMidi
-            in
-               { model | webMidi = newWebMidi } ! [ Cmd.map MidiMsg cmd ]
+            case midiMsg of
+                OutputDeviceDisconnected dev ->
+                   let
+                       (newWebMidi, cmd) = WebMidi.update midiMsg model.webMidi
+                       newId =
+                          if Just dev.id == model.maybeId
+                          then List.head (Dict.keys newWebMidi.outputDevices)
+                          else model.maybeId
+                       newModel = { model | webMidi = newWebMidi, maybeId = newId }
+                   in
+                       (newModel, Cmd.map MidiMsg cmd)
+                ResponseOutputDevice dev ->
+                    let
+                       (newWebMidi, cmd) = WebMidi.update midiMsg model.webMidi
+                       newId = case model.maybeId of
+                             Just id -> Just id
+                             Nothing -> Just dev.id
+                       newModel = { model | webMidi = newWebMidi, maybeId = newId }
+                    in
+                       (newModel, Cmd.map MidiMsg cmd)
+                _ ->
+                    let
+                       ( newWebMidi, cmd ) =
+                             WebMidi.update midiMsg model.webMidi
+                    in
+                       { model | webMidi = newWebMidi } ! [ Cmd.map MidiMsg cmd ]
 
         ChangeId newId -> { model | maybeId = Just (log "newId" newId) } ! []
 
@@ -179,10 +199,13 @@ channelUpdated str =
          Err _ -> BadVal
 
 
-viewMidiOutputs : Dict String MidiConnection -> List (Html Msg)
-viewMidiOutputs midiOutputs =
+viewMidiOutputs : Maybe String -> Dict String MidiConnection -> List (Html Msg)
+viewMidiOutputs selectedId midiOutputs =
    let
-       toOption (id, mc) = option [ value id ] [ text mc.name ]
+       toOption (id, mc) =
+          option
+          [ value id, selected (Just id == selectedId) ]
+          [ text mc.name ]
    in
        List.map toOption (Dict.toList midiOutputs)
 
@@ -208,8 +231,8 @@ view model =
             ]
         , p []
             [ select 
-               [ on "change" (JD.map ChangeId targetValue)]
-               (viewMidiOutputs model.webMidi.outputDevices)
+               [ onInput ChangeId ]
+               (viewMidiOutputs model.maybeId model.webMidi.outputDevices)
             ]
         , p []
             [ button [ onClick SendNoteOn ] [ text "Note On" ]
