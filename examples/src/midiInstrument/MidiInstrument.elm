@@ -127,7 +127,8 @@ update msg model =
 
 {-| just respond to NoteOn events by playing them
 
-  Copy-pasted from Piano.  We should break out into a separate file
+Copy-pasted from Piano. We should break out into a separate file
+
 -}
 playNote : Result String MidiEvent -> Model -> Cmd Msg
 playNote event model =

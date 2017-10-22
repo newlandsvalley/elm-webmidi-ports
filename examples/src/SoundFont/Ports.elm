@@ -17,15 +17,15 @@ port requestIsOggEnabled : () -> Cmd msg
 
 
 {-| request that the default piano fonts are loaded from the local resource
-    under the given directory.  By local we mean that the soundfonts are
-    housed on the same server as the requesting code
+under the given directory. By local we mean that the soundfonts are
+housed on the same server as the requesting code
 -}
 port requestLoadPianoFonts : String -> Cmd msg
 
 
 {-| request that the font for the named instrument is loaded from the
-    remote gleitz github server (i.e. where they are maintained).
-    This will take longer to load than the local resource above.
+remote gleitz github server (i.e. where they are maintained).
+This will take longer to load than the local resource above.
 -}
 port requestLoadRemoteFonts : String -> Cmd msg
 
@@ -45,7 +45,7 @@ port requestPlayNoteSequence : MidiNotes -> Cmd msg
 
 
 {-| get the audio context.
- Probably not much use because it is incomplete and cannot be passed back to javascript
+Probably not much use because it is incomplete and cannot be passed back to javascript
 -}
 port getAudioContext : (AudioContext -> msg) -> Sub msg
 
