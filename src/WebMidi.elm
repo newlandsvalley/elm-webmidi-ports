@@ -81,12 +81,12 @@ update msg model =
             , Cmd.none
             )
 
-        ResponseInputDevice connectedDevice ->
+        InputDeviceConnected connectedDevice ->
             ( addInputDevice connectedDevice model
             , Cmd.none
             )
 
-        ResponseOutputDevice connectedDevice ->
+        OutputDeviceConnected connectedDevice ->
             ( addOutputDevice connectedDevice model
             , Cmd.none
             )
@@ -129,10 +129,16 @@ update msg model =
                 , Cmd.none
                 )
 
-        OutEvent bytes ->
-            ( model
-            , sendMidi bytes
-            )
+        OutEvent maybeId bytes ->
+            case maybeId of
+                Just id ->
+                    ( model
+                    , sendMidi (id, bytes)
+                    )
+                Nothing ->
+                    ( model
+                    , sendMidiAll bytes
+                    )
 
 
 addInputDevice : MidiConnection -> Model -> Model

@@ -8,10 +8,10 @@ type Msg
     = WebMidiInitialise
     | ResponseWebMidiInitialised Bool
     | RequestDevices
-    | ResponseInputDevice MidiConnection
-    | ResponseOutputDevice MidiConnection
+    | InputDeviceConnected MidiConnection
+    | OutputDeviceConnected MidiConnection
     | InputDeviceDisconnected MidiDisconnection
     | OutputDeviceDisconnected MidiDisconnection
     | EncodedEvent MidiEncodedEvent
     | Event String Float (Result String MidiEvent)
-    | OutEvent (List Int)
+    | OutEvent (Maybe String) (List Int)
