@@ -7,9 +7,9 @@ This version has one advantage over its predecessor - MIDI Event messages are no
 
 The only processing that is done on the message stream is to recognise volume control messages and thus to save to state the current maximum volume.  This allows programs that use the module to respond to the volume control as notes are played.
 
-You will need to attach a MIDI input device to your computer to see any effect from Web-MIDI. At the time of writing, Chrome has the best support. Recent versions of Opera and Firefox support it but playback seems unresponsive. Other browsers will fail to initialise or fail to respond (say) to key presses on a MIDI keyboard.
+You will need to attach a MIDI device to your computer to see any effect from Web-MIDI. At the time of writing, Chrome has the best support. Recent versions of Opera and Firefox support it but playback seems unresponsive. Other browsers will fail to initialise or fail to respond (say) to key presses on a MIDI keyboard.
 
-To build, invoke __compile.sh__ and browse to __webmidi.html__
+To build, run __make__ and browse to __webmidi.html__
 
 Testing
 -------
@@ -27,13 +27,13 @@ cd to the examples directory to see the sample programs.
 
 [Basic.elm](https://github.com/newlandsvalley/elm-webmidi-ports/blob/master/examples/src/basic/Basic.elm) is functionally identical to WebMidi.elm.  It simply illustrates how you might embed the WebMidi module inside a larger program (but in this case this program does nothing else).
 
-To build, invoke __compileb.sh__ and browse to __basic.html__.
-
 ### Piano
 
 [Piano.elm](https://github.com/newlandsvalley/elm-webmidi-ports/blob/master/examples/src/piano/Piano.elm) allows you to plug in your MIDI keyboard or other MIDI device and play it as a piano. It works simply by loading the piano soundfont which is served as a local resource, initialising web-midi and requesting that any NoteOn events should be played through the soundfont.
 
-To build, invoke __compilep.sh__ and browse to __piano.html__.
+### Send
+
+[Send.elm](https://github.com/newlandsvalley/elm-webmidi-ports/blob/master/examples/src/send/Send.elm) allows you to send MIDI note on and off messages to any connected MIDI device.
 
 ### Pick an Instrument
 
