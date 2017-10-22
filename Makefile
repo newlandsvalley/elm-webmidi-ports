@@ -12,3 +12,6 @@ examples:
 clean:
 	rm distjs/*.js
 	$(MAKE) -C examples clean
+
+format:
+	elm-format src/ examples/

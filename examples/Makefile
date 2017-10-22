@@ -18,3 +18,6 @@ distjs/elmSend.js: src/send/Send.elm
 
 clean:
 	rm distjs/*.js
+
+format:
+	elm-format src/
