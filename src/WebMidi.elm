@@ -81,12 +81,12 @@ update msg model =
             , Cmd.none
             )
 
-        ResponseInputDevice connectedDevice ->
+        InputDeviceConnected connectedDevice ->
             ( addInputDevice connectedDevice model
             , Cmd.none
             )
 
-        ResponseOutputDevice connectedDevice ->
+        OutputDeviceConnected connectedDevice ->
             ( addOutputDevice connectedDevice model
             , Cmd.none
             )

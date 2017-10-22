@@ -25,12 +25,12 @@ outputDisconnectedSub =
 
 inputDeviceSub : Sub Msg
 inputDeviceSub =
-    inputDevice ResponseInputDevice
+    inputDevice InputDeviceConnected
 
 
 outputDeviceSub : Sub Msg
 outputDeviceSub =
-    outputDevice ResponseOutputDevice
+    outputDevice OutputDeviceConnected
 
 
 eventSub : Sub Msg

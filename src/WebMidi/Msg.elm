@@ -8,8 +8,8 @@ type Msg
     = WebMidiInitialise
     | ResponseWebMidiInitialised Bool
     | RequestDevices
-    | ResponseInputDevice MidiConnection
-    | ResponseOutputDevice MidiConnection
+    | InputDeviceConnected MidiConnection
+    | OutputDeviceConnected MidiConnection
     | InputDeviceDisconnected MidiDisconnection
     | OutputDeviceDisconnected MidiDisconnection
     | EncodedEvent MidiEncodedEvent

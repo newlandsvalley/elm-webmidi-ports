@@ -145,7 +145,7 @@ update msg model =
                        newModel = { model | webMidi = newWebMidi, maybeId = newId }
                    in
                        (newModel, Cmd.map MidiMsg cmd)
-                ResponseOutputDevice dev ->
+                OutputDeviceConnected dev ->
                     let
                        (newWebMidi, cmd) = WebMidi.update midiMsg model.webMidi
                        newId = case model.maybeId of
