@@ -1,37 +1,43 @@
 module SoundFont.Types exposing (..)
 
-{- 
-Types that are shared between elm and javascript.
-
-This is partly experimental - to see what elm's custom and borders protection actually does.
-It seems that if you mention an object field's name in an elm type, it will be accepted as long
-as its type is supported.  If you don't mention a name, then it will be ignored.
-
-This means that javascript types with binary fields are effectively useless if you want to store them
-in elm and pass them back to javascript later via another port.  Notice that AudioNode is the empty tuple.
+{-| Audio Node
 -}
 
-{-| Audio Node -}
-type alias AudioNode = 
-  {
-  }
+{-
+   Types that are shared between elm and javascript.
 
-{-| Audio Context -}
+   This is partly experimental - to see what elm's custom and borders protection actually does.
+   It seems that if you mention an object field's name in an elm type, it will be accepted as long
+   as its type is supported.  If you don't mention a name, then it will be ignored.
+
+   This means that javascript types with binary fields are effectively useless if you want to store them
+   in elm and pass them back to javascript later via another port.  Notice that AudioNode is the empty tuple.
+-}
+
+
+type alias AudioNode =
+    {}
+
+
+{-| Audio Context
+-}
 type alias AudioContext =
-  {
-    currentTime : Float
-  , destination : AudioNode
-  , sampleRate : Int
-  } 
+    { currentTime : Float
+    , destination : AudioNode
+    , sampleRate : Int
+    }
 
-{-| Midi Note -}
+
+{-| Midi Note
+-}
 type alias MidiNote =
-  { id  : Int
-  , timeOffset : Float
-  , gain : Float
-  }
+    { id : Int
+    , timeOffset : Float
+    , gain : Float
+    }
 
-{-| Midi Notes -}
+
+{-| Midi Notes
+-}
 type alias MidiNotes =
-  List MidiNote
-
+    List MidiNote

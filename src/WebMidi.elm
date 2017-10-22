@@ -40,6 +40,7 @@ type alias Model =
     , maxVolume : Int
     }
 
+
 initialModel =
     { initialised = False
     , inputDevices = Dict.empty
@@ -47,6 +48,7 @@ initialModel =
     , lastMidiMessage = "notes not started"
     , maxVolume = (volumeCeiling // 2)
     }
+
 
 init =
     ( initialModel
@@ -120,10 +122,18 @@ update msg model =
             let
                 deviceName =
                     case Dict.get id model.inputDevices of
-                        Just device -> device.name
-                        Nothing -> "unknown"
-                midiMsg = (toString event) ++
-                    " from " ++ deviceName ++ " at " ++ (toString timeStamp)
+                        Just device ->
+                            device.name
+
+                        Nothing ->
+                            "unknown"
+
+                midiMsg =
+                    (toString event)
+                        ++ " from "
+                        ++ deviceName
+                        ++ " at "
+                        ++ (toString timeStamp)
             in
                 ( { model | lastMidiMessage = midiMsg }
                 , Cmd.none
@@ -133,8 +143,9 @@ update msg model =
             case maybeId of
                 Just id ->
                     ( model
-                    , sendMidi (id, bytes)
+                    , sendMidi ( id, bytes )
                     )
+
                 Nothing ->
                     ( model
                     , sendMidiAll bytes
@@ -183,7 +194,7 @@ forwardMsg msg =
 
 
 {-| recognise and act on a control message and save to the model state
-    At the moment, we just recognise volume changes
+At the moment, we just recognise volume changes
 -}
 recogniseControlMessage : Result String MidiEvent -> Model -> Model
 recogniseControlMessage event model =
@@ -252,9 +263,9 @@ view model =
             [ text "initialise web-midi" ]
         , p [] [ text ("initialised: " ++ (toString model.initialised)) ]
         , p [] [ text "Inputs:" ]
-        , div [ style [ ("margin-left", "5%") ] ] (viewInputDevices model)
+        , div [ style [ ( "margin-left", "5%" ) ] ] (viewInputDevices model)
         , p [] [ text "Outputs:" ]
-        , div [ style [ ("margin-left", "5%") ] ] (viewOutputDevices model)
+        , div [ style [ ( "margin-left", "5%" ) ] ] (viewOutputDevices model)
         , div [] [ text model.lastMidiMessage ]
         , div [] [ text ("max volume : " ++ (toString model.maxVolume)) ]
         ]
