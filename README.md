@@ -1,6 +1,6 @@
 elm-webmidi-ports
 =================
-[![Build Status](https://travis-ci.org/rhofour/elm-webmidi-ports.svg?branch=master)](https://travis-ci.org/rhofour/elm-webmidi-ports)
+[![Build Status](https://travis-ci.org/newlandsvalley/elm-webmidi-ports.svg?branch=master)](https://travis-ci.org/newlandsvalley/elm-webmidi-ports)
 
 This is an Elm 0.18 pseudo-library for [Web-MIDI](http://www.w3.org/TR/webmidi/).  It started life as an almost direct translation from [elm-webmidi](https://github.com/newlandsvalley/elm-webmidi) (elm 0.16) which was deprecated a year or so ago because it made heavy use of signals which suddenly vanished from the language.  The analogue of signals in Elm 0.18 is subscriptions which act through ports.  However, one downside of ports is that their use precludes publication in the Elm package repository.
 
