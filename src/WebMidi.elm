@@ -13,6 +13,7 @@ import WebMidi.Msg exposing (..)
 import WebMidi.Subscriptions exposing (..)
 import Midi.Parse exposing (parseMidiEvent)
 import Midi.Types exposing (MidiEvent(..))
+import Midi.Generate as Generate
 import Debug exposing (log)
 
 
@@ -139,17 +140,21 @@ update msg model =
                 , Cmd.none
                 )
 
-        OutEvent maybeId bytes ->
-            case maybeId of
-                Just id ->
-                    ( model
-                    , sendMidi ( id, bytes )
-                    )
+        OutEvent maybeId events ->
+            let
+                bytes =
+                    Generate.events events
+            in
+                case maybeId of
+                    Just id ->
+                        ( model
+                        , sendMidi ( id, bytes )
+                        )
 
-                Nothing ->
-                    ( model
-                    , sendMidiAll bytes
-                    )
+                    Nothing ->
+                        ( model
+                        , sendMidiAll bytes
+                        )
 
 
 addInputDevice : MidiConnection -> Model -> Model

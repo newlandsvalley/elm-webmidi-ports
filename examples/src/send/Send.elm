@@ -64,19 +64,11 @@ init =
 
 
 sendNoteOnMsg channel note velocity maybeId =
-    let
-        bytes =
-            [ 128 + 16 + channel, note, velocity ]
-    in
-        OutEvent maybeId bytes
+    OutEvent maybeId [ NoteOn channel note velocity ]
 
 
 sendNoteOffMsg channel note velocity maybeId =
-    let
-        bytes =
-            [ 128 + channel, note, velocity ]
-    in
-        OutEvent maybeId bytes
+    OutEvent maybeId [ NoteOff channel note velocity ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
