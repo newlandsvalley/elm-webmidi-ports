@@ -11,8 +11,8 @@ import WebMidi.Ports exposing (..)
 import WebMidi.Types exposing (..)
 import WebMidi.Msg exposing (..)
 import WebMidi.Subscriptions exposing (..)
-import CoMidi exposing (parseMidiEvent)
-import MidiTypes exposing (MidiEvent(..))
+import Midi.Parse exposing (parseMidiEvent)
+import Midi.Types exposing (MidiEvent(..))
 import Debug exposing (log)
 
 

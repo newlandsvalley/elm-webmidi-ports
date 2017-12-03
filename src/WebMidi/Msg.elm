@@ -1,7 +1,7 @@
 module WebMidi.Msg exposing (..)
 
 import WebMidi.Types exposing (..)
-import MidiTypes exposing (MidiEvent)
+import Midi.Types exposing (MidiEvent)
 
 
 type Msg

@@ -10,7 +10,7 @@ import WebMidi.Msg exposing (..)
 import WebMidi.Ports exposing (initialiseWebMidi)
 import WebMidi.Subscriptions exposing (eventSub)
 import WebMidi.Types exposing (MidiConnection)
-import MidiTypes exposing (MidiEvent(..))
+import Midi.Types exposing (MidiEvent(..))
 import Debug exposing (log)
 
 
