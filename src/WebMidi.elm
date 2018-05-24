@@ -143,7 +143,7 @@ update msg model =
         OutEvent maybeId events ->
             let
                 bytes =
-                    Generate.events events
+                    List.concatMap Generate.event events
             in
                 case maybeId of
                     Just id ->
