@@ -8,7 +8,7 @@ import Dict exposing (Dict, fromList, get)
 import Maybe exposing (withDefault)
 import WebMidi exposing (Model, init, update, subscriptions)
 import WebMidi.Msg exposing (..)
-import WebMidi.Ports exposing (initialiseWebMidi)
+import WebMidi.Ports exposing (requestAccess)
 import WebMidi.Subscriptions exposing (eventSub)
 import Midi.Types exposing (MidiEvent(..))
 import SoundFont.Ports exposing (..)
@@ -91,7 +91,7 @@ update msg model =
 
                 ResponseFontsLoaded loaded ->
                     ( { model | fontsLoaded = loaded }
-                    , initialiseWebMidi ()
+                    , requestAccess False
                     )
 
                 -- ignore any other messages

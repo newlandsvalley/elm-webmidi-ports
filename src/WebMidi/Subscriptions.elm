@@ -8,19 +8,19 @@ import WebMidi.Msg exposing (..)
 -- SUBSCRIPTIONS
 
 
-initialisedSub : Sub Msg
-initialisedSub =
-    initialised ResponseWebMidiInitialised
+midiSupportSub : Sub Msg
+midiSupportSub =
+    midiSupport MidiSupportStatus
 
 
-inputDisconnectedSub : Sub Msg
-inputDisconnectedSub =
-    inputDisconnected InputDeviceDisconnected
+midiAccessSub : Sub Msg
+midiAccessSub =
+    midiAccess MidiAccessStatus
 
 
-outputDisconnectedSub : Sub Msg
-outputDisconnectedSub =
-    outputDisconnected OutputDeviceDisconnected
+sysexAccessSub : Sub Msg
+sysexAccessSub =
+    sysexAccess SysexAccessStatus
 
 
 inputDeviceSub : Sub Msg
@@ -28,9 +28,19 @@ inputDeviceSub =
     inputDevice InputDeviceConnected
 
 
+inputDisconnectedSub : Sub Msg
+inputDisconnectedSub =
+    inputDisconnected InputDeviceDisconnected
+
+
 outputDeviceSub : Sub Msg
 outputDeviceSub =
     outputDevice OutputDeviceConnected
+
+
+outputDisconnectedSub : Sub Msg
+outputDisconnectedSub =
+    outputDisconnected OutputDeviceDisconnected
 
 
 eventSub : Sub Msg

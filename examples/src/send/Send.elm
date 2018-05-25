@@ -7,7 +7,7 @@ import Html.Attributes as A
 import Html.Events exposing (onClick, onInput, on)
 import WebMidi exposing (Model, init, update, subscriptions)
 import WebMidi.Msg exposing (..)
-import WebMidi.Ports exposing (initialiseWebMidi)
+import WebMidi.Ports exposing (requestAccess)
 import WebMidi.Subscriptions exposing (eventSub)
 import WebMidi.Types exposing (MidiConnection)
 import Midi.Types exposing (MidiEvent(..))
@@ -59,7 +59,7 @@ init =
         , maybeId = Nothing
         }
             ! [ Cmd.map MidiMsg webMidiCmd
-              , initialiseWebMidi ()
+              , requestAccess False
               ]
 
 
@@ -191,12 +191,12 @@ subscriptions model =
 
 initialisationStatus : Model -> String
 initialisationStatus model =
-    case model.webMidi.initialised of
+    case model.webMidi.midiAccess of
         True ->
             "Ready to send"
 
         False ->
-            "Web MIDI is not initialised"
+            "Web MIDI access is missing"
 
 
 noteUpdated : String -> Msg

@@ -34,7 +34,9 @@ volumeCeiling =
 
 
 type alias Model =
-    { initialised : Bool
+    { midiSupported : Maybe Bool
+    , midiAccess : Bool
+    , sysexAccess : Bool
     , inputDevices : Dict String MidiConnection
     , outputDevices : Dict String MidiConnection
     , lastMidiMessage : String
@@ -43,7 +45,9 @@ type alias Model =
 
 
 initialModel =
-    { initialised = False
+    { midiSupported = Nothing
+    , midiAccess = False
+    , sysexAccess = False
     , inputDevices = Dict.empty
     , outputDevices = Dict.empty
     , lastMidiMessage = "notes not started"
@@ -60,13 +64,8 @@ init =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        WebMidiInitialise ->
-            ( model, initialiseWebMidi () )
-
-        ResponseWebMidiInitialised isInitialised ->
-            ( { model | initialised = isInitialised }
-            , requestDevices ()
-            )
+        CheckWebMidiSupport ->
+            ( model, checkWebMidiSupport () )
 
         InputDeviceDisconnected disconnectedDevice ->
             ( removeInputDevice disconnectedDevice model
@@ -78,9 +77,23 @@ update msg model =
             , Cmd.none
             )
 
-        -- not called - done directly from the Connected response
-        RequestDevices ->
+        RequestAccess requestSysex ->
             ( model
+            , requestAccess requestSysex
+            )
+
+        MidiSupportStatus midiSupported ->
+            ( { model | midiSupported = Just midiSupported }
+            , Cmd.none
+            )
+
+        MidiAccessStatus midiAccess ->
+            ( { model | midiAccess = midiAccess }
+            , Cmd.none
+            )
+
+        SysexAccessStatus sysexAccess ->
+            ( { model | sysexAccess = sysexAccess }
             , Cmd.none
             )
 
@@ -224,7 +237,9 @@ recogniseControlMessage event model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ initialisedSub
+        [ midiSupportSub
+        , midiAccessSub
+        , sysexAccessSub
         , inputDeviceSub
         , outputDeviceSub
         , inputDisconnectedSub
@@ -261,12 +276,26 @@ view : Model -> Html Msg
 view model =
     div []
         [ button
-            [ onClick WebMidiInitialise
-            , id "web-midi-initialise"
+            [ onClick CheckWebMidiSupport
+            , id "web-midi-check-support"
             , btnStyle
             ]
-            [ text "initialise web-midi" ]
-        , p [] [ text ("initialised: " ++ (toString model.initialised)) ]
+            [ text "check web MIDI support" ]
+        , button
+            [ onClick (RequestAccess False)
+            , id "web-midi-request-access"
+            , btnStyle
+            ]
+            [ text "request web MIDI access" ]
+        , button
+            [ onClick (RequestAccess True)
+            , id "web-midi-request-access-with-sysex"
+            , btnStyle
+            ]
+            [ text "request web MIDI access (with SysEx)" ]
+        , p [] [ text ("web MIDI support: " ++ (toString model.midiSupported)) ]
+        , p [] [ text ("MIDI access: " ++ (toString model.midiAccess)) ]
+        , p [] [ text ("SysEx access: " ++ (toString model.sysexAccess)) ]
         , p [] [ text "Inputs:" ]
         , div [ style [ ( "margin-left", "5%" ) ] ] (viewInputDevices model)
         , p [] [ text "Outputs:" ]

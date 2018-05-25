@@ -1,29 +1,29 @@
 "use strict";
 
-myapp.ports.initialiseWebMidi.subscribe(webMidiConnect);
+myapp.ports.checkWebMidiSupport.subscribe(checkWebMidiSupport);
 
-function webMidiConnect () {
-
-   console.log('MIDIConnect');
-   // request MIDI access and then connect
+function checkWebMidiSupport () {
+   // check for web MIDI support
    if (navigator.requestMIDIAccess) {
-      myapp.ports.initialised.send(true);
+      myapp.ports.midiSupport.send(true);
    }
    else {
-      myapp.ports.initialised.send(false);
+      myapp.ports.midiSupport.send(false);
    }
  }
 
-myapp.ports.requestDevices.subscribe(detectDevices);
+myapp.ports.requestAccess.subscribe(requestAccess);
 
-function detectDevices () {
-
-   console.log('MIDIConnect');
-   // request MIDI access and then connect
+function requestAccess (requestSysex) {
+   // request MIDI access
    if (navigator.requestMIDIAccess) {
+      myapp.ports.midiSupport.send(true);
       navigator.requestMIDIAccess({
-        sysex: false // this defaults to 'false' anyway.
-      }).then(onMIDISuccess)
+        sysex: requestSysex
+      }).then(onMIDISuccess, onMIDIFailure)
+   }
+   else {
+      myapp.ports.midiSupport.send(false);
    }
 }
 
@@ -42,6 +42,8 @@ function sendMidiPlaceholder (arg) {
 function onMIDISuccess(midiAccess) {
      // console.log('MIDI Access Object', midiAccess);
 
+     myapp.ports.midiAccess.send(true);
+     myapp.ports.sysexAccess.send(midiAccess.sysexEnabled);
      var inputs = midiAccess.inputs.values();
      // loop over any register inputs and listen for data on each
      midiAccess.inputs.forEach( function( input, id, inputMap ) {
@@ -82,6 +84,14 @@ function onMIDISuccess(midiAccess) {
      myapp.ports.sendMidiAll.unsubscribe(sendMidiAllPlaceholder);
      myapp.ports.sendMidi.subscribe(sendMidi);
      myapp.ports.sendMidi.unsubscribe(sendMidiPlaceholder);
+}
+
+// TODO: Add a callback so the Elm app can know when a request failed
+function onMIDIFailure(reason) {
+     if (reason.name === "NotSupportedError") {
+          myapp.ports.midiAccess.send(false);
+     }
+     myapp.ports.midiAccess.send(false);
 }
 
 // register an input device

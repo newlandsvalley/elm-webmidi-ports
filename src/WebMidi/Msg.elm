@@ -5,9 +5,11 @@ import Midi.Types exposing (MidiEvent)
 
 
 type Msg
-    = WebMidiInitialise
-    | ResponseWebMidiInitialised Bool
-    | RequestDevices
+    = CheckWebMidiSupport
+    | RequestAccess Bool
+    | MidiSupportStatus Bool
+    | MidiAccessStatus Bool
+    | SysexAccessStatus Bool
     | InputDeviceConnected MidiConnection
     | OutputDeviceConnected MidiConnection
     | InputDeviceDisconnected MidiDisconnection

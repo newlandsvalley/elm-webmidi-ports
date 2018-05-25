@@ -3,7 +3,7 @@ module Piano exposing (..)
 import Html exposing (Html, Attribute, map, div, p, text)
 import WebMidi exposing (Model, init, update, subscriptions)
 import WebMidi.Msg exposing (..)
-import WebMidi.Ports exposing (initialiseWebMidi)
+import WebMidi.Ports exposing (requestAccess)
 import WebMidi.Subscriptions exposing (eventSub)
 import Midi.Types exposing (MidiEvent(..))
 import SoundFont.Ports exposing (..)
@@ -62,7 +62,7 @@ update msg model =
 
                 ResponseFontsLoaded loaded ->
                     ( { model | fontsLoaded = loaded }
-                    , initialiseWebMidi ()
+                    , requestAccess False
                     )
 
                 -- ignore any other messages
