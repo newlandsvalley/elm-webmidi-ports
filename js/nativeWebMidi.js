@@ -86,7 +86,6 @@ function onMIDISuccess(midiAccess) {
      myapp.ports.sendMidi.unsubscribe(sendMidiPlaceholder);
 }
 
-// TODO: Add a callback so the Elm app can know when a request failed
 function onMIDIFailure(reason) {
      if (reason.name === "NotSupportedError") {
           myapp.ports.midiAccess.send(false);
