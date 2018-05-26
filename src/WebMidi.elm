@@ -11,7 +11,7 @@ import WebMidi.Ports exposing (..)
 import WebMidi.Types exposing (..)
 import WebMidi.Msg exposing (..)
 import WebMidi.Subscriptions exposing (..)
-import Midi.Parse exposing (parseMidiEvent)
+import Midi.Parse
 import Midi.Types exposing (MidiEvent(..))
 import Midi.Generate as Generate
 import Debug exposing (log)
@@ -117,7 +117,7 @@ update msg model =
             let
                 -- parse the MIDI event
                 midiEvent =
-                    parseMidiEvent encodedEvent.encodedBinary
+                    Midi.Parse.event encodedEvent.encodedBinary
 
                 -- intercept any control messages we care about
                 newModel =

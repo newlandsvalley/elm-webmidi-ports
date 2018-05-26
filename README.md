@@ -20,7 +20,7 @@ This project has been tested using an M-Audio KeystationMini32 keyboard.
 Examples
 --------
 
-cd to the examples directory to see the sample programs.  
+cd to the examples directory to see the sample programs.
 
 (Examples have a dependency on elm-soundfont-ports which uses native code and which consequently is debarred from publication on http://package.elm-lang.org/. As a workaround, the elm code is reproduced in the SoundFont of the examples.)
 
@@ -42,11 +42,6 @@ cd to the examples directory to see the sample programs.
 
 To build, invoke __compilemi.sh__ and browse to __midiInstrument.html__.
 
-Limitations
------------
-
-At the moment, no attempt is made to discriminate between channels.  i.e. it is intended for use when only a single MIDI device is plugged in.  Also, no attempt is made to respond to NoteOff messages.  Each note is allowed to 'ring' for its natural duration, which will depend on the type of instrument being emulated by the soundfont.
-
 Suggestions for Further Work
 ----------------------------
 
@@ -57,7 +52,7 @@ Dependencies
 
       elm-lang/core 5.1.1
       elm-lang/html 2.0.0
-      newlandsvalley/elm-comidi 2.2.0
+      newlandsvalley/elm-comidi 3.0.0
 
 Contributing
 ------------
