@@ -6,14 +6,14 @@ import WebMidi.Types exposing (..)
 -- outgoing ports (for commands to javascript)
 
 
-{-| attempt to connect to Web-Midi ?
+{-| check if Web MIDI is supported
 -}
-port initialiseWebMidi : () -> Cmd msg
+port checkWebMidiSupport : () -> Cmd msg
 
 
-{-| request the MIDI devices that are attached
+{-| request web MIDI access
 -}
-port requestDevices : () -> Cmd msg
+port requestAccess : Bool -> Cmd msg
 
 
 {-| send a MIDI message to all connected devices
@@ -30,9 +30,13 @@ port sendMidi : ( String, List Int ) -> Cmd msg
 -- incoming ports (for subscriptions from javascript)
 
 
-{-| response to say whether web-midi is initialised
--}
-port initialised : (Bool -> msg) -> Sub msg
+port midiSupport : (Bool -> msg) -> Sub msg
+
+
+port midiAccess : (Bool -> msg) -> Sub msg
+
+
+port sysexAccess : (Bool -> msg) -> Sub msg
 
 
 {-| return a MIDI input device which may be connecting or pre-connected
